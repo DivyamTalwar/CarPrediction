@@ -43,12 +43,12 @@ def handle_missing_values(df):
     numeric_cols = df.select_dtypes(include=[np.number]).columns
     for col in numeric_cols:
         if df[col].isnull().sum() > 0:
-            df[col].fillna(df[col].median(), inplace=True)
+            df[col] = df[col].fillna(df[col].median())
 
     cat_cols = df.select_dtypes(include=['object']).columns
     for col in cat_cols:
         if df[col].isnull().sum() > 0:
-            df[col].fillna(df[col].mode()[0], inplace=True)
+            df[col] = df[col].fillna(df[col].mode()[0])
 
     return df
 
