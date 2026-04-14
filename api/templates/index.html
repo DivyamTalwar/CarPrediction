@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Price Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="grain" aria-hidden="true"></div>
+
+    <main class="page">
+
+        <header class="hero">
+            <div class="hero__pill anim-up" style="--d:0">ML Capstone 2026</div>
+            <h1 class="hero__title anim-up" style="--d:1">
+                Car Price <span class="hero__accent">Prediction</span>
+            </h1>
+            <p class="hero__desc anim-up" style="--d:2">Estimate used car market value in seconds, powered by XGBoost with 98% accuracy</p>
+        </header>
+
+        {% if prediction is not none %}
+        <section class="result" id="result" aria-live="polite">
+            <div class="result__inner">
+                <span class="result__tag">Estimated Value</span>
+                <div class="result__price" data-value="{{ '%.2f'|format(prediction) }}">
+                    <span class="result__symbol">&#8377;</span>
+                    <span class="result__number" id="priceCounter">0.00</span>
+                    <span class="result__suffix">Lakhs</span>
+                </div>
+                <span class="result__sub">Based on current market data and vehicle condition</span>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if error %}
+        <div class="alert" role="alert">
+            <svg class="alert__icon" viewBox="0 0 16 16" fill="none" width="16" height="16"><circle cx="8" cy="8" r="7.25" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.5v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11.5" r="0.75" fill="currentColor"/></svg>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/predict" class="form" id="predictionForm">
+
+            <fieldset class="form__group">
+                <legend class="form__legend anim-up" style="--d:3">Vehicle</legend>
+                <div class="form__grid form__grid--3">
+                    <label class="field anim-up" style="--d:4">
+                        <span class="field__name">Brand</span>
+                        <select name="brand" id="brand" class="field__control" required>
+                            {% for b in brands %}
+                            <option value="{{ b }}" {% if form_data and form_data.brand == b %}selected{% endif %}>{{ b }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label class="field anim-up" style="--d:5">
+                        <span class="field__name">Fuel</span>
+                        <select name="fuel_type" id="fuel_type" class="field__control" required>
+                            <option value="Petrol" {% if form_data and form_data.fuel_type == 'Petrol' %}selected{% endif %}>Petrol</option>
+                            <option value="Diesel" {% if form_data and form_data.fuel_type == 'Diesel' %}selected{% endif %}>Diesel</option>
+                            <option value="CNG" {% if form_data and form_data.fuel_type == 'CNG' %}selected{% endif %}>CNG</option>
+                        </select>
+                    </label>
+                    <label class="field anim-up" style="--d:6">
+                        <span class="field__name">Transmission</span>
+                        <select name="transmission" id="transmission" class="field__control" required>
+                            <option value="Manual" {% if form_data and form_data.transmission == 'Manual' %}selected{% endif %}>Manual</option>
+                            <option value="Automatic" {% if form_data and form_data.transmission == 'Automatic' %}selected{% endif %}>Automatic</option>
+                        </select>
+                    </label>
+                </div>
+            </fieldset>
+
+            <fieldset class="form__group">
+                <legend class="form__legend anim-up" style="--d:7">Pricing &amp; Usage</legend>
+                <div class="form__grid form__grid--2">
+                    <label class="field anim-up" style="--d:8">
+                        <span class="field__name">Ex-Showroom Price <span class="field__unit">(Lakhs)</span></span>
+                        <input type="number" name="present_price" id="present_price" class="field__control"
+                               step="0.01" min="0.1"
+                               value="{{ form_data.present_price if form_data else '8.5' }}" required>
+                    </label>
+                    <label class="field anim-up" style="--d:9">
+                        <span class="field__name">Kilometers Driven</span>
+                        <input type="number" name="kms_driven" id="kms_driven" class="field__control"
+                               min="0"
+                               value="{{ form_data.kms_driven if form_data else '35000' }}" required>
+                    </label>
+                </div>
+                <div class="form__grid form__grid--3">
+                    <label class="field anim-up" style="--d:10">
+                        <span class="field__name">Car Age <span class="field__unit">(Years)</span></span>
+                        <input type="number" name="car_age" id="car_age" class="field__control"
+                               min="0" max="30"
+                               value="{{ form_data.car_age if form_data else '3' }}" required>
+                    </label>
+                    <label class="field anim-up" style="--d:11">
+                        <span class="field__name">Owners</span>
+                        <select name="owner" id="owner" class="field__control" required>
+                            <option value="0" {% if form_data and form_data.owner == '0' %}selected{% endif %}>First</option>
+                            <option value="1" {% if form_data and form_data.owner == '1' %}selected{% endif %}>Second</option>
+                            <option value="3" {% if form_data and form_data.owner == '3' %}selected{% endif %}>Third +</option>
+                        </select>
+                    </label>
+                    <label class="field anim-up" style="--d:12">
+                        <span class="field__name">Seller</span>
+                        <select name="seller_type" id="seller_type" class="field__control" required>
+                            <option value="Dealer" {% if form_data and form_data.seller_type == 'Dealer' %}selected{% endif %}>Dealer</option>
+                            <option value="Individual" {% if form_data and form_data.seller_type == 'Individual' %}selected{% endif %}>Individual</option>
+                        </select>
+                    </label>
+                </div>
+            </fieldset>
+
+            <button type="submit" class="btn anim-up" style="--d:13" id="predictBtn">
+                <span>Get Estimate</span>
+                <svg class="btn__arrow" viewBox="0 0 16 16" fill="none" width="16" height="16"><path d="M3.5 8h9m0 0L8.5 4m4 4l-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </form>
+
+        <footer class="footer anim-up" style="--d:14">
+            <p>scikit-learn &middot; XGBoost &middot; Flask &middot; Python</p>
+        </footer>
+
+    </main>
+
+    <script>
+    (function(){
+        // Price counting animation (ease-out cubic, 800ms)
+        var el = document.getElementById('priceCounter');
+        if (!el) return;
+        var target = parseFloat(document.getElementById('result').querySelector('.result__price').dataset.value);
+        var dur = 800, t0 = performance.now();
+        (function tick(now){
+            var p = Math.min((now - t0) / dur, 1);
+            var e = 1 - Math.pow(1 - p, 3);
+            el.textContent = (target * e).toFixed(2);
+            if (p < 1) requestAnimationFrame(tick);
+        })(t0);
+
+        // Button press feedback (Emil: scale 0.97, 160ms)
+        var btn = document.getElementById('predictBtn');
+        btn.addEventListener('mousedown', function(){ btn.classList.add('btn--pressed'); });
+        btn.addEventListener('mouseup', function(){ btn.classList.remove('btn--pressed'); });
+        btn.addEventListener('mouseleave', function(){ btn.classList.remove('btn--pressed'); });
+    })();
+    </script>
+
+</body>
+</html>
