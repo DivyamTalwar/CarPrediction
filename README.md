@@ -1,61 +1,40 @@
-# Car Price Prediction Using Machine Learning on Cloud
+# CarPrediction
 
-A machine learning system that predicts used car selling prices based on vehicle attributes, served via a Flask web application and ready for cloud deployment.
+Used-car price prediction project built with Python, scikit-learn, XGBoost, and Flask. The repository includes the end-to-end ML workflow, an interactive prediction UI, automated tests, generated visualizations, and deployment-ready packaging.
 
-## Project Overview
+## Stack
 
-This capstone project builds and compares multiple regression models to predict used car prices from features such as brand, mileage, fuel type, and age. The best-performing model (XGBoost) is deployed behind a Flask API with both a web form and JSON endpoint, containerized with Docker, and prepared for Azure App Service deployment.
+- Python 3.9+
+- pandas, NumPy, scikit-learn, XGBoost
+- matplotlib, seaborn
+- Flask
+- pytest, Playwright
+- Docker, Vercel config
 
-## Tech Stack
+## Repository Layout
 
-- **Language:** Python 3
-- **Data & ML:** pandas, NumPy, scikit-learn, XGBoost
-- **Visualization:** matplotlib, seaborn
-- **Web Framework:** Flask
-- **Containerization:** Docker
-- **Cloud:** Azure App Service
-
-## Dataset
-
-CarDekho-style dataset with approximately 8,000 rows and the following features:
-
-| Feature | Description |
-|---|---|
-| Brand | Car manufacturer |
-| Present_Price | Current ex-showroom price (lakhs) |
-| Kms_Driven | Distance driven (km) |
-| Fuel_Type | Petrol / Diesel / CNG |
-| Seller_Type | Dealer / Individual |
-| Transmission | Manual / Automatic |
-| Owner | Number of previous owners |
-| Car_Age | Age of the vehicle (years) |
-
-## Project Structure
-
-```
-CAR PRIDICTION/
+```text
+CarPrediction/
 ├── api/
+│   ├── __init__.py
 │   ├── app.py
-│   ├── static/
-│   │   └── style.css
-│   └── templates/
-│       └── index.html
+│   ├── static/style.css
+│   └── templates/index.html
 ├── data/
-│   ├── raw/
-│   │   └── car_data.csv
-│   └── processed/
-│       └── cleaned_data.csv
+│   ├── raw/car_data.csv
+│   └── processed/cleaned_data.csv
 ├── models/
 │   ├── best_model.pkl
 │   ├── linear_regression.pkl
 │   ├── random_forest.pkl
 │   └── xgboost.pkl
 ├── notebooks/
-│   └── 01_eda.ipynb
+│   ├── 01_eda.ipynb
+│   └── 02_model_training.ipynb
 ├── outputs/
+│   ├── Car_Price_Prediction_Final_Report.pdf
 │   ├── figures/
-│   ├── metrics/
-│   │   └── model_comparison.csv
+│   ├── metrics/model_comparison.csv
 │   └── screenshots/
 ├── src/
 │   ├── __init__.py
@@ -63,77 +42,99 @@ CAR PRIDICTION/
 │   ├── data_preprocessing.py
 │   ├── evaluate.py
 │   ├── feature_engineering.py
+│   ├── generate_report.py
 │   └── train.py
 ├── tests/
+│   ├── test_api.py
+│   ├── test_e2e_playwright.py
+│   ├── test_model.py
+│   └── test_preprocessing.py
 ├── Dockerfile
+├── PLAN.md
+├── REPORT.md
 ├── requirements.txt
-└── README.md
+└── vercel.json
 ```
 
 ## Model Performance
 
 | Model | MAE | RMSE | R² |
-|---|---|---|---|
+|---|---:|---:|---:|
 | Linear Regression | 1.0535 | 1.9765 | 0.8596 |
 | Random Forest | 0.4436 | 0.8036 | 0.9768 |
-| **XGBoost (Best)** | **0.3833** | **0.7083** | **0.9820** |
+| XGBoost | 0.3833 | 0.7083 | 0.9820 |
 
-## How to Run
-
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Preprocess the data
-python src/data_preprocessing.py
-
-# Train models
-python src/train.py
-
-# Evaluate models
-python src/evaluate.py
-
-# Start the web application
-python api/app.py
-# Open http://localhost:8080
-```
-
-## How to Test
+## Local Setup
 
 ```bash
-python -m pytest tests/ -v
+python3 -m pip install -r requirements.txt
 ```
+
+If you want to run the Playwright browser test locally, install Chromium once:
+
+```bash
+python3 -m playwright install chromium
+```
+
+## Run the Pipeline
+
+```bash
+python3 src/data_preprocessing.py
+python3 src/train.py
+python3 src/evaluate.py
+python3 src/generate_report.py
+```
+
+## Run the Web App
+
+```bash
+python3 api/app.py
+```
+
+The Flask app defaults to `http://localhost:8080`.
+
+## Run Tests
+
+```bash
+python3 -m pytest tests/test_preprocessing.py tests/test_model.py tests/test_api.py tests/test_e2e_playwright.py -q
+```
+
+The Playwright suite starts the Flask app automatically unless `BASE_URL` is set. If browser binaries are not installed, that test skips cleanly instead of failing the whole suite.
 
 ## API Endpoints
 
-| Method | Endpoint | Description |
+| Method | Route | Purpose |
 |---|---|---|
-| GET | `/` | Web form for interactive predictions |
-| POST | `/predict` | Submit prediction (form data or JSON) |
-| GET | `/health` | Health check |
+| `GET` | `/` | Interactive prediction form |
+| `POST` | `/predict` | Price prediction via form or JSON |
+| `GET` | `/health` | Health check |
 
 ### Example JSON Request
 
 ```bash
 curl -X POST http://localhost:8080/predict \
   -H "Content-Type: application/json" \
-  -d '{"Present_Price": 5.59, "Kms_Driven": 27000, "Fuel_Type": "Petrol", "Seller_Type": "Dealer", "Transmission": "Manual", "Owner": 0, "Car_Age": 5}'
+  -d '{
+    "brand": "Toyota",
+    "present_price": 32.0,
+    "kms_driven": 60000,
+    "fuel_type": "Diesel",
+    "seller_type": "Individual",
+    "transmission": "Automatic",
+    "owner": 1,
+    "car_age": 5
+  }'
 ```
 
 ## Docker
 
 ```bash
-# Build the image
-docker build -t car-price .
-
-# Run the container
-docker run -p 8080:8080 car-price
+docker build -t carprediction .
+docker run -p 8080:8080 carprediction
 ```
 
-## Cloud Deployment
+## Deployment Notes
 
-The application is configured for deployment on Azure App Service. The Dockerfile exposes port 8080 and is compatible with Azure's container deployment workflow. To deploy, push the Docker image to Azure Container Registry and configure an App Service instance to pull from it.
-
-## License
-
-This project was developed as an academic capstone project.
+- `Dockerfile` packages the Flask application for container deployment.
+- `vercel.json` maps the Flask entrypoint for Vercel-style Python hosting.
+- The app loads `models/best_model.pkl` at startup, so model artifacts must remain present in the deployed bundle.
