@@ -59,7 +59,10 @@ def generate_eda_plots(df, figures_dir):
 
     # 3. Price by fuel type
     fig, ax = plt.subplots(figsize=(10, 6))
-    sns.boxplot(data=df, x='Fuel_Type', y='Selling_Price', palette='Set2', ax=ax)
+    sns.boxplot(
+        data=df, x='Fuel_Type', y='Selling_Price', hue='Fuel_Type',
+        palette='Set2', dodge=False, legend=False, ax=ax
+    )
     ax.set_title('Selling Price by Fuel Type', fontsize=14)
     ax.set_xlabel('Fuel Type')
     ax.set_ylabel('Selling Price (Lakhs)')
@@ -70,7 +73,10 @@ def generate_eda_plots(df, figures_dir):
 
     # 4. Price by transmission
     fig, ax = plt.subplots(figsize=(10, 6))
-    sns.boxplot(data=df, x='Transmission', y='Selling_Price', palette='Set3', ax=ax)
+    sns.boxplot(
+        data=df, x='Transmission', y='Selling_Price', hue='Transmission',
+        palette='Set3', dodge=False, legend=False, ax=ax
+    )
     ax.set_title('Selling Price by Transmission', fontsize=14)
     ax.set_xlabel('Transmission')
     ax.set_ylabel('Selling Price (Lakhs)')
@@ -116,7 +122,10 @@ def generate_eda_plots(df, figures_dir):
 
     # 8. Price by seller type
     fig, ax = plt.subplots(figsize=(10, 6))
-    sns.boxplot(data=df, x='Seller_Type', y='Selling_Price', palette='pastel', ax=ax)
+    sns.boxplot(
+        data=df, x='Seller_Type', y='Selling_Price', hue='Seller_Type',
+        palette='pastel', dodge=False, legend=False, ax=ax
+    )
     ax.set_title('Selling Price by Seller Type', fontsize=14)
     ax.set_xlabel('Seller Type')
     ax.set_ylabel('Selling Price (Lakhs)')
