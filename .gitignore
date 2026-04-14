@@ -5,3 +5,14 @@ __pycache__/
 .env
 *.env
 .DS_Store
+.omx/
+.venv/
+venv/
+env/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+playwright-report/
+test-results/
