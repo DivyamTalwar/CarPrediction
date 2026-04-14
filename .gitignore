@@ -16,3 +16,6 @@ htmlcov/
 .ipynb_checkpoints/
 playwright-report/
 test-results/
+
+# Vercel
+.vercel/

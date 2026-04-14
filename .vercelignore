@@ -1,0 +1,31 @@
+# --- Dev artifacts ---
+.git/
+.github/
+.pytest_cache/
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+.DS_Store
+.omx/
+.claude/
+.vercel/
+
+# --- Not needed at runtime ---
+data/
+outputs/
+notebooks/
+tests/
+src/
+*.ipynb
+
+# --- Docs/reports (keep in repo, not in deploy) ---
+REPORT.md
+PLAN.md
+Dockerfile
+
+# --- Keep ONLY best_model.pkl in models/ ---
+models/random_forest.pkl
+models/xgboost.pkl
+models/linear_regression.pkl

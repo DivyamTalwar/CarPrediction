@@ -3,17 +3,15 @@
   "builds": [
     {
       "src": "api/app.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "250mb",
+        "includeFiles": "models/best_model.pkl"
+      }
     }
   ],
   "routes": [
-    {
-      "src": "/static/(.*)",
-      "dest": "api/static/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "api/app.py"
-    }
+    { "src": "/static/(.*)", "dest": "api/static/$1" },
+    { "src": "/(.*)", "dest": "api/app.py" }
   ]
 }
