@@ -17,5 +17,3 @@ htmlcov/
 playwright-report/
 test-results/
 
-# Vercel
-.vercel/
