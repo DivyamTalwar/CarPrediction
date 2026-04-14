@@ -6,6 +6,7 @@ Compares models and saves the best one.
 import pandas as pd
 import numpy as np
 import os
+import sys
 import time
 import joblib
 from sklearn.model_selection import train_test_split, cross_val_score
@@ -13,6 +14,11 @@ from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+# Allow `python3 src/train.py` from the repository root.
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_DIR not in sys.path:
+    sys.path.insert(0, PROJECT_DIR)
 
 from src.feature_engineering import build_pipeline, prepare_data_log, TARGET
 
@@ -120,10 +126,9 @@ def train_and_evaluate(df, models_dir, metrics_dir):
 
 
 if __name__ == "__main__":
-    project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    processed_path = os.path.join(project_dir, "data", "processed", "cleaned_data.csv")
-    models_dir = os.path.join(project_dir, "models")
-    metrics_dir = os.path.join(project_dir, "outputs", "metrics")
+    processed_path = os.path.join(PROJECT_DIR, "data", "processed", "cleaned_data.csv")
+    models_dir = os.path.join(PROJECT_DIR, "models")
+    metrics_dir = os.path.join(PROJECT_DIR, "outputs", "metrics")
 
     os.makedirs(models_dir, exist_ok=True)
 
